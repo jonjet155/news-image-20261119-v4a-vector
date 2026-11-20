@@ -66,9 +66,18 @@ REGIONS = [
 ]
 
 # ---------------------------------------------------------------- fonts
-FD = "/usr/share/fonts/truetype/dejavu"
+# DejaVu is vendored in fonts/ next to this file (see fonts/LICENSE):
+# the grader's image has no system fonts, so loading from the absolute
+# /usr/share/fonts path fails there. Fall back to the system path only
+# if a vendored file is missing (e.g. a local checkout without fonts/).
+_HERE = os.path.dirname(os.path.abspath(__file__))
 def font(name, size):
-    return ImageFont.truetype(os.path.join(FD, name), size)
+    for base in (os.path.join(_HERE, "fonts"),
+                 "/usr/share/fonts/truetype/dejavu"):
+        path = os.path.join(base, name)
+        if os.path.isfile(path):
+            return ImageFont.truetype(path, size)
+    raise FileNotFoundError("font not found: %s" % name)
 
 SERIF_B = lambda s: font("DejaVuSerif-Bold.ttf", s)
 SERIF = lambda s: font("DejaVuSerif.ttf", s)

@@ -30,6 +30,8 @@ byte-identical PNG.
 
 - `main.py` — the generator (entrypoint)
 - `entry.png` — the entry image, 1024x1024
+- `fonts/` — DejaVu (free license, see `fonts/LICENSE`), vendored so the
+  program runs in the grader image, which has no system fonts
 - `LICENSE` — MIT
 
 ## Sources
