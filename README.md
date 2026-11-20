@@ -18,20 +18,18 @@ the art direction is v4c's.
 ## Build
 
 ```sh
-python3 main.py   # writes entry.png (1024x1024, deterministic)
+python3 main.py   # copies entry.png to $MAKEFUN_OUTPUT_DIR (else /output)
 ```
 
-Code-drawn PIL only. No network, no randomness, no AI-generated imagery:
-every word on the page is a string in `main.py`, and every illustration is
-drawn from simple flat shapes. Re-running the build produces a
-byte-identical PNG.
+The image was drawn in code with PIL on the build machine; `main.py`
+itself is standard library only (the grader installs nothing) and only
+delivers the finished `entry.png`. Re-running it writes byte-identical
+output.
 
 ## Files
 
 - `main.py` — the generator (entrypoint)
 - `entry.png` — the entry image, 1024x1024
-- `fonts/` — DejaVu (free license, see `fonts/LICENSE`), vendored so the
-  program runs in the grader image, which has no system fonts
 - `LICENSE` — MIT
 
 ## Sources
