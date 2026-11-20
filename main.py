@@ -19,6 +19,7 @@ Layout (1024x1024, v4a geometry kept):
 """
 
 import hashlib
+import io
 import os
 import sys
 
@@ -647,13 +648,37 @@ def build():
 def main():
     img = build()
     assert img.size == (1024, 1024)
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "entry.png")
-    img.save(out, "PNG")
-    data = open(out, "rb").read()
+    buf = io.BytesIO()
+    img.save(buf, "PNG")
+    data = buf.getvalue()
     assert len(data) < 1024 * 1024, "entry.png over 1 MiB: %d" % len(data)
     sha = hashlib.sha256(data).hexdigest()
+    # Write next to this file (the repo copy) AND to the grader's
+    # output directory (MAKEFUN_OUTPUT_DIR, else OUTPUT_DIR, else
+    # /output). In the grader /bot is read-only, so the repo write
+    # fails there and the output-dir write is the one that counts;
+    # locally the output dir may not exist. One success is enough;
+    # a location that cannot be written is skipped, not fatal.
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") \
+        or os.environ.get("OUTPUT_DIR") or "/output"
+    targets = [os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "entry.png"),
+               os.path.join(out_dir, "entry.png")]
+    written = []
+    for path in dict.fromkeys(targets):
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as f:
+                f.write(data)
+            written.append(path)
+        except OSError:
+            pass
+    if not written:
+        print("error: could not write entry.png anywhere", file=sys.stderr)
+        return 1
     print("wrote entry.png  (40 stories: 16 panels + 24 list)")
     print("bytes: %d  sha256: %s" % (len(data), sha))
+    print("wrote to: %s" % ", ".join(written))
     return 0
 
 if __name__ == "__main__":
